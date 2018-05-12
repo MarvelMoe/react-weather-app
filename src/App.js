@@ -2,20 +2,6 @@ import React from 'react';
 import axios from 'axios';
 import './css/index.css';
 
-const weatherIcons =
-  [
-    'v1525070599/cloud-one_iiddgh.svg',
-    'v1525070596/cloud-three_isrrou.svg',
-    'v1525070596/slightly-cloudy-day_ljjffu.svg',
-    'v1525070596/thunder_hw7uyx.svg',
-    'v1525070596/night_vywgej.svg',
-    'v1525070596/slightly-cloudy-night_xchkwe.svg',
-    'v1525070596/sunny_iygrqv.svg',
-    'v1525140183/snowy.svg',
-    'v1525140275/sunset.svg',
-    'v1525140275/sunrise.svg',
-    'v1525139860/windy.svg'
-  ];
 
 class App extends React.Component {
   constructor(props) {
@@ -47,8 +33,7 @@ class App extends React.Component {
       const temp = this.temperatureConverter(data.main.temp);
       const tempC = Math.round(data.main.temp);
       let imgSource = `http://openweathermap.org/img/w/${ data.weather[0].icon }.png`;
-      debugger;
-
+   
       this.setState({ location: `${data.name}, ${data.sys.country}`, degree: temp, main: data.weather[0].main, img: imgSource })
     })
 
@@ -66,17 +51,54 @@ class App extends React.Component {
         } else {
           hour = `${hour - 12} PM`
         }
-        let img = "http://res.cloudinary.com/marvel451/image/upload/v1525070596/slightly-cloudy-day_ljjffu.svg";
         const temp = this.temperatureConverter(obj.main.temp);
         const description = obj.weather[0].main;
-        weatherList.push({hour, temp, description});
+
+        const prefix = 'http://res.cloudinary.com/marvel451/image/upload/';
+        let weatherIcons =
+          [
+            'v1525070596/sunny.svg',
+            'v1525070599/cloud-one_iiddgh.svg',
+            'v1525070596/cloud-three_isrrou.svg',
+            'v1525070596/thunder_hw7uyx.svg',
+            'v1525140183/snowy.svg',
+            'v1525070596/slightly-cloudy-day_ljjffu.svg',
+            'v1525070596/slightly-cloudy-night_xchkwe.svg'
+          ];
+
+        let img = `${ prefix + weatherIcons[0] }`
+        if (description == "clear sky" ) {
+          img = `${ prefix + weatherIcons[0] }`
+        }
+        if (description == "rain" ) {
+          img = `${ prefix + weatherIcons[1] }`
+        }
+        if (description == "shower rain" ) {
+          img = `${ prefix + weatherIcons[2] }`
+        }
+        if (description == "thunderstorm" ) {
+          img = `${ prefix + weatherIcons[3] }`
+        }
+        if (description == "snow" ) {
+          img = `${ prefix + weatherIcons[4] }`
+        }
+        if (description == "clouds" || "scattered clouds" ) {
+          img = `${ prefix + weatherIcons[5] }`
+        }
+        if (description == "clouds" || "scattered clouds" && hour > 20 && hour < 6  ) {
+          img = `${ prefix + weatherIcons[6] }`
+        }
+
+        weatherList.push({hour, temp, description, img});
+        console.log(obj)
       })
       this.setState({ forecast: weatherList });
     })
 
   }
 
-   registerUser = () => {
+
+ registerUser = () => {
       var x = document.forms["updates"]["sms"].value;
       if (x == "" || isNaN(x) ) {
           alert("Please give us your number");
@@ -106,11 +128,12 @@ class App extends React.Component {
           <p className="app-over">{ this.state.main }</p>
           <div className="grid-container">
             { this.state.forecast.map(( obj ) => {
-              console.log(obj)
+      
+              
               return <div>
                         <p className={'app-time'}> { obj.hour } </p>
                         <p className={`app-degrees`}> <span> { obj.temp } F </span> </p>
-                        <img src="http://res.cloudinary.com/marvel451/image/upload/v1525070596/slightly-cloudy-day_ljjffu.svg" className="app-icons"/>
+                        <img src={ obj.img } className="app-icons"/>
                     </div>
             })}
           </div>
@@ -118,17 +141,17 @@ class App extends React.Component {
 
         <section className="app-sms">
           <h4> Register for SMS alerts for this location</h4>
-
           <form className="form-inline" onSubmit={(e) => {this.registerUser(); e.preventDefault();}}  name="updates">
             <input  type="text" name="sms" placeholder="555-555-555" /><br />
             <button type="submit" className="btn btn-primary">Get alerts </button>
-          </form>
-
-       
+          </form>   
         </section>
 
 
       </div>
+
+    
+
     );
   }
 }
